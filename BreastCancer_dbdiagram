@@ -1,0 +1,216 @@
+Table CarePlans {
+  Id UUID [primary key]
+  StartDate Date [not null]
+  StopDate Date
+  Patient UUID [ref: > Patients.Id]
+  Encounter UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  ReasonCode String [not null]
+  ReasonDescription String [not null]
+}
+
+
+Table Conditions {
+  StartDate Date [not null]
+  StopDate Date
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+}
+
+Table Devices {
+  Start Date [not null]
+  Stop  Date
+  Patient UUID [ref: > Patients.Id]
+  Encounter UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  UDI String [not null]
+}
+
+Table Encounters {
+  Id UUID [primary key]
+  Start Date [not null]
+  Stop Date
+  PatientId UUID [ref: > Patients.Id]
+  OrganizationId UUID [ref: > Organizations.Id]
+  ProviderId UUID [ref: > Providers.Id]
+  PayerId UUID [ref: > Payers.Id]
+  EncounterClass String [not null]
+  Code String [not null]
+  Description String [not null]
+  Base_Encounter_Cost Numeric [not null]
+  Total_Claim_Cost Numeric [not null]
+  Payer_Coverage Numeric [not null]
+  ReasonCode String
+  ReasonDescription String
+}
+Table ImagingStudies {
+  Id UUID [primary key]
+  Date Date [not null]
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  SeriesUID String [not null]
+  BodySiteCode String [not null]
+  BodySiteDescription String [not null]
+  ModalityCode String [not null]
+  ModalityDescription String [not null]
+  InstanceUID String [not null]
+  SOPCode String [not null]
+  SOPDescription String [not null]
+  ProcedureCode String [not null]
+}
+Table Immunizations {
+  Date Date [not null]
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  Cost Numeric [not null]
+}
+
+Table Medications {
+  Start Date [not null]
+  Stop Date
+  PatientId UUID [ref: > Patients.Id]
+  PayerId UUID [ref: > Payers.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  Base_Cost Numeric [not null]
+  Payer_Coverage Numeric [not null]
+  Dispenses Numeric [not null]
+  TotalCost Numeric [not null]
+  ReasonCode String
+  ReasonDescription String
+}
+
+Table Observations {
+  Date Date [not null]
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Category String
+  Code String [not null]
+  Description String [not null]
+  Value String [not null]
+  Units String
+  Type String [not null]
+}
+
+Table Organizations {
+  Id UUID [primary key]
+  Name String [not null]
+  Address String [not null]
+  City String [not null]
+  State String
+  Zip String
+  Lat Numeric
+  Lon Numeric
+  Phone String
+  Revenue Numeric [not null]
+  Utilization Numeric [not null]
+}
+
+Table Patients {
+  Id UUID [primary key]
+  BirthDate Date [not null]
+  DeathDate Date
+  SSN String [not null]
+  Drivers String
+  Passport String
+  Prefix String
+  First String [not null]
+  Last String [not null]
+  Suffix String
+  Maiden String
+  Marital String
+  Race String [not null]
+  Ethnicity String [not null]
+  Gender String [not null]
+  BirthPlace String [not null]
+  Address String [not null]
+  City String [not null]
+  State String [not null]
+  County String
+  FIPSCountyCode String
+  Zip String
+  Lat Numeric
+  Lon Numeric
+  Healthcare_Expenses Numeric [not null]
+  Healthcare_Coverage Numeric [not null]
+  Income Numeric [not null]
+}
+
+Table PayerTransitions {
+  PatientId UUID [ref: > Patients.Id]
+  MemberID UUID
+  StartYear Date (YYYY) [not null]
+  EndYear Date (YYYY) [not null]
+  PayerId UUID [ref: > Payers.Id]
+  SecondaryPayerId UUID
+  Ownership String
+  OwnerName String
+}
+
+Table Payers {
+  Id UUID [primary key]
+  Name String [not null]
+  Address String
+  City String
+  StateHeadquartered String
+  Zip String
+  Phone String
+  Amount_Covered Numeric [not null]
+  Amount_Uncovered Numeric [not null]
+  Revenue Numeric [not null]
+  Covered_Encounters Numeric [not null]
+  Uncovered_Encounters Numeric [not null]
+  Covered_Medications Numeric [not null]
+  Uncovered_Medications Numeric [not null]
+  Covered_Procedures Numeric [not null]
+  Uncovered_Procedures Numeric [not null]
+  Covered_Immunizations Numeric [not null]
+  Uncovered_Immunizations Numeric [not null]
+  Unique_Customers Numeric [not null]
+  QOLS_Avg Numeric [not null]
+  Member_Months Numeric [not null]
+}
+
+Table Procedures {
+  Start Date [not null]
+  Stop Date
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  Base_Cost Numeric [not null]
+  ReasonCode String
+  ReasonDescription String
+}
+
+Table Providers {
+  Id UUID [primary key]
+  OrganizationId UUID [ref: > Organizations.Id]
+  Name String [not null]
+  Gender String [not null]
+  Speciality String [not null]
+  Address String [not null]
+  City String [not null]
+  State String
+  Zip String
+  Lat Numeric
+  Lon Numeric
+  Utilization Numeric [not null]
+}
+
+Table Supplies {
+  Date Date (YYYY-MM-DD) [not null]
+  PatientId UUID [ref: > Patients.Id]
+  EncounterId UUID [ref: > Encounters.Id]
+  Code String [not null]
+  Description String [not null]
+  Quantity Numeric [not null]
+}
+

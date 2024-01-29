@@ -1,0 +1,11 @@
+SELECT o.value, p.BIRTHDATE, o.date, p.ID AS patient_id, c.description, c.start, c.stop
+FROM observations o
+JOIN patients p ON o.patient = p.ID
+JOIN conditions c ON p.ID = c.patient
+JOIN (
+    SELECT cc.patient, cc.description
+    FROM conditions cc
+    WHERE cc.description LIKE '%breast%'
+) AS subquery ON c.patient = subquery.patient
+WHERE o.DESCRIPTION = 'QALY'
+ORDER BY p.ID;

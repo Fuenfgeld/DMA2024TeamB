@@ -1,0 +1,43 @@
+Table F_BreastCancerQoL {
+  PatientId UUID [ref: > d_Patients.Id]
+  Age_group_diagnosis_ID Integer [ref: > d_Agegroups.ID]
+  Comorbidity_ID Integer [ref: > d_Comorbidity.ID]
+  Comorbidity_YesNo Integer [not null]
+  Ethnicity Integer [not null]
+  Gender String [not null]
+  Cancertherapy_ID Integer [ref: > d_Cancertherapy.ID]
+  Cancerherapy_class_ID Integer [not null]
+  Medication_ID Integer [ref: > d_Medications.ID]
+  Medication_YesNo Integer [not null]
+  
+}
+Table d_Patients {
+  Id UUID [primary key]
+  Age_diagnosis Integer [not null]
+  Age_studyinclusion Integer [not null]
+  Maritalstatus String 
+  }
+
+
+  Table d_Comorbidity {
+  ID Integer [primary key]
+  Description String [not null]
+}
+
+Table d_Medications {
+  ID Integer [primary key]
+  Description String [not null]
+}
+
+Table d_Cancertherapy {
+  ID Integer [primary key]
+  Description String [not null]
+  ReasonCode String
+  ReasonDescription String
+
+}
+
+Table d_Agegroups {
+  ID Integer [primary key]
+  Agre_group String [not null]
+}

@@ -9,7 +9,8 @@ Table F_BreastCancerQoL {
   Cancerherapy_class_ID Integer [not null]
   Medication_ID Integer [ref: > d_Medications.ID]
   Medication_YesNo Integer [not null]
-  
+  QoL_Value_first Integer [not null]
+  QoL_Value_last Integer [not null]
 }
 Table d_Patients {
   Id UUID [primary key]

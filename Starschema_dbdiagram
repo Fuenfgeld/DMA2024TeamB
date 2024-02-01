@@ -1,12 +1,13 @@
 Table F_BreastCancerQoL {
   PatientId UUID [ref: > d_Patients.Id]
   Age_group_diagnosis_ID Integer [ref: > d_Agegroups.ID]
+  Primary_Tumor_ID Integer [ref: > d_Primarytumor.ID]
   Comorbidity_ID Integer [ref: > d_Comorbidity.ID]
   Comorbidity_YesNo Integer [not null]
   Ethnicity Integer [not null]
   Gender String [not null]
   Cancertherapy_ID Integer [ref: > d_Cancertherapy.ID]
-    Chemotherapy_YesNo Integer [not null]
+  Chemotherapy_YesNo Integer [not null]
   Targetedtherapy_YesNo Integer [not null]
   Medication_ID Integer [ref: > d_Medications.ID]
   Medication_YesNo Integer [not null]
@@ -42,4 +43,13 @@ Table d_Cancertherapy {
 Table d_Agegroups {
   ID Integer [primary key]
   Agre_group String [not null]
+}
+
+Table d_Primarytumor {
+  ID Integer [primary key]
+  Tumortype String [not null]
+  HER2_Status String
+  HR_Status String 
+  Stage integer 
+  Nodal_Status String 
 }

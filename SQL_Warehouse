@@ -1,0 +1,226 @@
+-- Leere FACT-Tabelle erstellen
+
+CREATE TABLE F_BreastCancerQoL (
+  PatientId UUID,
+  Age_group_diagnosis_ID Integer,
+  Comorbidity_ID Integer,
+  Comorbidity_YesNo Integer,
+  Ethnicity Integer,
+  Gender String,
+  Cancertherapy_ID Integer,
+  Chemotherapy_YesNo Integer,
+  Targetedtherapy_YesNo Integer,
+  Medication_ID Integer,
+  Medication_YesNo Integer,
+  QoL_Value_first Integer,
+  QoL_Value_last Integer
+);
+
+
+-- Temporäre Tabelle mit MedicationID (=Medication.Code) erstellen (ohne Krebstherapie):
+
+CREATE TABLE temp_patients_medicationID AS
+SELECT DISTINCT p.id, m.code
+FROM patients p
+JOIN medications m ON p.id = m.patient
+JOIN conditions c ON p.id = c.patient
+WHERE m.reasoncode != '254837009' AND c.code = '254837009';
+
+-- Temporäre Tabelle mit CancertherapieID (= Medication.Code):
+
+CREATE TABLE temp_patients_cancertherapyID AS
+SELECT DISTINCT p.id, m.code
+FROM patients p
+JOIN medications m ON p.id = m.patient
+JOIN conditions c ON p.id = c.patient
+WHERE m.reasoncode = '254837009' AND c.code = '254837009';
+
+-- Temporäre Tabelle mit PatientID erstellen (Nur Brustkrebspatienten):
+
+CREATE TABLE temp_patients AS
+SELECT DISTINCT p.id, p.ethnicity, p.gender
+FROM observations o
+JOIN patients p ON o.patient = p.id
+JOIN conditions c ON p.id = c.patient
+WHERE c.code = '254837009'
+
+-- Temporäre Tabelle mit Comorbidities erstellen (ohne Brustkrebserkrankungen):
+
+CREATE TABLE temp_patients_comorbidity AS
+SELECT DISTINCT p.id, c.code
+FROM conditions c
+JOIN temp_patients p ON p.id = c.patient
+WHERE c.code IS NOT '254837009'
+
+-- Temporäre Tabelle mit erstem QoL Wert erstellen
+
+CREATE TABLE temp_qol_value_first AS
+SELECT o.value AS qol_value_first, c.patient, MIN(o.date) AS earliest_date
+FROM observations o
+JOIN conditions c ON o.PATIENT = c.patient
+WHERE o.code = "QOLS" AND c.code = '254837009'
+GROUP BY c.patient
+ORDER BY c.patient;
+
+-- Temporäre Tabelle mit letzem QoL Wert erstellen:
+
+CREATE TABLE temp_qol_value_last AS
+SELECT o.value AS qol_value_last, c.patient, MAX(o.date) AS latest_date
+FROM observations o
+JOIN conditions c ON o.PATIENT = c.patient
+WHERE o.code = "QOLS" AND c.code = '254837009'
+GROUP BY c.patient
+ORDER BY c.patient;
+
+
+--- d_Patients Tabelle erstellen:
+
+CREATE TABLE d_Patients AS
+SELECT
+  p.id AS Id,
+  STRFTIME('%Y', 'now') - STRFTIME('%Y', p.birthdate) - (STRFTIME('%m-%d', 'now') < STRFTIME('%m-%d', p.birthdate)) AS AGE_Studyinclusion,
+  STRFTIME('%Y', c.START) - STRFTIME('%Y', p.birthdate) - (STRFTIME('%m-%d', c.START) < STRFTIME('%m-%d', p.birthdate)) AS AGE_diagnosis,
+  p.marital AS Maritalstatus
+FROM
+  patients p, conditions c
+WHERE p.id = c.patient AND
+c.code = '254837009';
+
+--- d_Medications Tabelle erstellen:
+
+CREATE TABLE d_Medications AS
+SELECT DISTINCT 
+  code AS ID,
+  CASE
+    WHEN Description LIKE '%Clopidogrel%' THEN 'Clopidogrel'
+    WHEN Description LIKE '%Simvastatin%' THEN 'Simvastatin'
+    WHEN Description LIKE '%Amlodipine%' THEN 'Amlodipine'
+    WHEN Description LIKE '%Nitroglycerin%' THEN 'Nitroglycerin'
+    WHEN Description LIKE '%Warfarin%' THEN 'Warfarin'
+    WHEN Description LIKE '%Verapamil%' THEN 'Verapamil'
+    WHEN Description LIKE '%Digoxin%' THEN 'Digoxin'
+    WHEN Description LIKE '%Epinephrine%' THEN 'Epinephrine'
+    WHEN Description LIKE '%Amiodarone%' THEN 'Amiodarone'
+    WHEN Description LIKE '%Alteplase%' THEN 'Alteplase'
+    WHEN Description LIKE '%Atropine%' THEN 'Atropine'
+    WHEN Description LIKE '%Atorvastatin%' THEN 'Atorvastatin'
+    WHEN Description LIKE '%Captopril%' THEN 'Captopril'
+  END AS Description
+FROM medications
+WHERE Description LIKE '%Clopidogrel%'
+   OR Description LIKE '%Simvastatin%'
+   OR Description LIKE '%Amlodipine%'
+   OR Description LIKE '%Nitroglycerin%'
+   OR Description LIKE '%Warfarin%'
+   OR Description LIKE '%Verapamil%'
+   OR Description LIKE '%Digoxin%'
+   OR Description LIKE '%Epinephrine%'
+   OR Description LIKE '%Amiodarone%'
+   OR Description LIKE '%Alteplase%'
+   OR Description LIKE '%Atropine%'
+   OR Description LIKE '%Atorvastatin%'
+   OR Description LIKE '%Captopril%';
+
+-- d_Cancertherapy Tabelle erstellen:
+
+CREATE TABLE d_Cancertherapy AS
+SELECT DISTINCT 
+  code AS ID,
+  CASE
+    WHEN Description LIKE '%Anastrozole%' THEN 'Anastrozole (AI)'
+    WHEN Description LIKE '%Trastuzumab%' THEN 'Trastuzumab (anti-HER2 antibody)'
+    WHEN Description LIKE '%Palbociclib%' THEN 'Palbociclib (CDK4/6 inhibitor)'
+    WHEN Description LIKE '%Tamoxifen%' THEN 'Tamoxifen (SERM)'
+    WHEN Description LIKE '%Verzenio%' THEN 'Abemaciclib (CDK4/6 inhibitor)'
+    WHEN Description LIKE '%Epirubicin%' THEN 'Epirubicin'
+    WHEN Description LIKE '%Cyclophosphamide%' THEN 'Cyclophosphamide'
+    WHEN Description LIKE '%Paclitaxel%' THEN 'Paclitaxel'
+  END AS Description,
+  CASE
+    WHEN Description LIKE '%Epirubicin%' THEN 1
+    WHEN Description LIKE '%Cyclophosphamide%' THEN 1
+    WHEN Description LIKE '%Paclitaxel%' THEN 1
+    ELSE 0
+  END AS Chemotherapy,
+  CASE
+    WHEN Description LIKE '%Anastrozole%' THEN 1
+    WHEN Description LIKE '%Trastuzumab%' THEN 1
+    WHEN Description LIKE '%Palbociclib%' THEN 1
+    WHEN Description LIKE '%Tamoxifen%' THEN 1
+    WHEN Description LIKE '%Verzenio%' THEN 1
+    ELSE 0
+  END AS TargetedTherapy
+FROM medications
+WHERE Description LIKE '%Anastrozole%'
+   OR Description LIKE '%Trastuzumab%'
+   OR Description LIKE '%Palbociclib%'
+   OR Description LIKE '%Tamoxifen%'
+   OR Description LIKE '%Verzenio%'
+   OR Description LIKE '%Epirubicin%'
+   OR Description LIKE '%Cyclophosphamide%'
+   OR Description LIKE '%Paclitaxel%';
+
+--d_Comorbidity erstellen:
+
+CREATE TABLE d_Comorbidity AS
+SELECT DISTINCT code AS ID, description AS Description
+FROM conditions
+WHERE code != '254837009'
+
+
+
+-- Fülle F_BreastCancerQoL auf:
+
+INSERT INTO F_BreastCancerQoL (PatientId, Age_group_diagnosis_ID, Comorbidity_ID, Comorbidity_YesNo, Ethnicity, Gender, Cancertherapy_ID, Chemotherapy_YesNo, Targetedtherapy_YesNo, Medication_ID, Medication_YesNo, QoL_Value_first, QoL_Value_last)
+SELECT
+  p.id AS PatientId,
+  CASE 
+    WHEN d.Age_diagnosis < 70 THEN 1 
+    WHEN d.age_diagnosis >= 70 THEN 2
+    ELSE NULL 
+  END AS Age_group_diagnosis_ID,
+  c.code AS Comorbidity_ID,
+  CASE WHEN c.code IS NOT NULL THEN 1 ELSE 0 END AS Comorbidity_YesNo,
+  p.ethnicity AS Ethnicity,
+  p.gender AS Gender,
+  ct.code AS Cancertherapy_ID,
+  dct.chemotherapy AS Chemotherapy_YesNo,
+  dct.targetedtherapy AS Targetedtherapy_YesNo,
+  m.code AS Medication_ID,
+  CASE WHEN m.code IS NOT NULL THEN 1 ELSE 0 END AS Medication_YesNo,
+  qvf.qol_value_first AS QoL_Value_first,
+  qvl.qol_value_last AS QoL_Value_last
+FROM d_patients d
+LEFT JOIN temp_patients_comorbidity c ON d.id = c.id
+LEFT JOIN temp_patients_cancertherapyID ct ON d.id = ct.id
+LEFT JOIN temp_patients_medicationID m ON d.id = m.id
+LEFT JOIN temp_qol_value_first qvf ON d.id = qvf.patient
+LEFT JOIN temp_qol_value_last qvl ON d.id = qvl.patient
+LEFT JOIN temp_patients p ON d.id = p.id
+JOIN d_Cancertherapy dct ON ct.code = dct.ID;
+
+-- Drop temp tables
+
+DROP TABLE IF EXISTS temp_patients;
+DROP TABLE IF EXISTS temp_patients_cancertherapyID;
+DROP TABLE IF EXISTS temp_patients_medicationID;
+DROP TABLE IF EXISTS temp_patients_comorbidity;
+DROP TABLE IF EXISTS temp_qol_value_first;
+DROP TABLE IF EXISTS temp_qol_value_last;
+
+-- Drop other tables
+
+DROP TABLE IF EXISTS medications;
+DROP TABLE IF EXISTS conditions;
+DROP TABLE IF EXISTS observations;
+DROP TABLE IF EXISTS careplans;
+DROP TABLE IF EXISTS conditions;
+DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS disease;
+DROP TABLE IF EXISTS encounters;
+DROP TABLE IF EXISTS imaging_studies;
+DROP TABLE IF EXISTS immunizations;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS procedures;
+
+

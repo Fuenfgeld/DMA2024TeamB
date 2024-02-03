@@ -1,4 +1,5 @@
 -- Leere FACT-Tabelle erstellen
+DROP TABLE IF EXISTS F_BreastCancerQoL;
 
 CREATE TABLE F_BreastCancerQoL (
   PatientId UUID,
@@ -16,8 +17,8 @@ CREATE TABLE F_BreastCancerQoL (
   QoL_Value_last Integer
 );
 
-
 -- Temporäre Tabelle mit MedicationID (=Medication.Code) erstellen (ohne Krebstherapie):
+DROP TABLE IF EXISTS temp_patients_medicationID;
 
 CREATE TABLE temp_patients_medicationID AS
 SELECT DISTINCT p.id, m.code
@@ -27,6 +28,7 @@ JOIN conditions c ON p.id = c.patient
 WHERE m.reasoncode != '254837009' AND c.code = '254837009';
 
 -- Temporäre Tabelle mit CancertherapieID (= Medication.Code):
+DROP TABLE IF EXISTS temp_patients_cancertherapyID;
 
 CREATE TABLE temp_patients_cancertherapyID AS
 SELECT DISTINCT p.id, m.code
@@ -36,44 +38,48 @@ JOIN conditions c ON p.id = c.patient
 WHERE m.reasoncode = '254837009' AND c.code = '254837009';
 
 -- Temporäre Tabelle mit PatientID erstellen (Nur Brustkrebspatienten):
+DROP TABLE IF EXISTS temp_patients;
 
 CREATE TABLE temp_patients AS
 SELECT DISTINCT p.id, p.ethnicity, p.gender
-FROM observations o
-JOIN patients p ON o.patient = p.id
+FROM patients p
+JOIN observations o ON p.id = o.patient
 JOIN conditions c ON p.id = c.patient
-WHERE c.code = '254837009'
+WHERE c.code = '254837009';
 
 -- Temporäre Tabelle mit Comorbidities erstellen (ohne Brustkrebserkrankungen):
+DROP TABLE IF EXISTS temp_patients_comorbidity;
 
 CREATE TABLE temp_patients_comorbidity AS
 SELECT DISTINCT p.id, c.code
 FROM conditions c
 JOIN temp_patients p ON p.id = c.patient
-WHERE c.code IS NOT '254837009'
+WHERE c.code != '254837009';
 
 -- Temporäre Tabelle mit erstem QoL Wert erstellen
+DROP TABLE IF EXISTS temp_qol_value_first;
 
 CREATE TABLE temp_qol_value_first AS
 SELECT o.value AS qol_value_first, c.patient, MIN(o.date) AS earliest_date
 FROM observations o
 JOIN conditions c ON o.PATIENT = c.patient
-WHERE o.code = "QOLS" AND c.code = '254837009'
+WHERE o.code = 'QOLS' AND c.code = '254837009'
 GROUP BY c.patient
 ORDER BY c.patient;
 
--- Temporäre Tabelle mit letzem QoL Wert erstellen:
+-- Temporäre Tabelle mit letztem QoL Wert erstellen:
+DROP TABLE IF EXISTS temp_qol_value_last;
 
 CREATE TABLE temp_qol_value_last AS
 SELECT o.value AS qol_value_last, c.patient, MAX(o.date) AS latest_date
 FROM observations o
 JOIN conditions c ON o.PATIENT = c.patient
-WHERE o.code = "QOLS" AND c.code = '254837009'
+WHERE o.code = 'QOLS' AND c.code = '254837009'
 GROUP BY c.patient
 ORDER BY c.patient;
 
-
---- d_Patients Tabelle erstellen:
+-- d_Patients Tabelle erstellen:
+DROP TABLE IF EXISTS d_Patients;
 
 CREATE TABLE d_Patients AS
 SELECT
@@ -82,11 +88,12 @@ SELECT
   STRFTIME('%Y', c.START) - STRFTIME('%Y', p.birthdate) - (STRFTIME('%m-%d', c.START) < STRFTIME('%m-%d', p.birthdate)) AS AGE_diagnosis,
   p.marital AS Maritalstatus
 FROM
-  patients p, conditions c
-WHERE p.id = c.patient AND
-c.code = '254837009';
+  patients p
+JOIN conditions c ON p.id = c.patient
+WHERE c.code = '254837009';
 
---- d_Medications Tabelle erstellen:
+-- d_Medications Tabelle erstellen:
+DROP TABLE IF EXISTS d_Medications;
 
 CREATE TABLE d_Medications AS
 SELECT DISTINCT 
@@ -122,6 +129,7 @@ WHERE Description LIKE '%Clopidogrel%'
    OR Description LIKE '%Captopril%';
 
 -- d_Cancertherapy Tabelle erstellen:
+DROP TABLE IF EXISTS d_Cancertherapy;
 
 CREATE TABLE d_Cancertherapy AS
 SELECT DISTINCT 
@@ -161,16 +169,14 @@ WHERE Description LIKE '%Anastrozole%'
    OR Description LIKE '%Paclitaxel%';
 
 --d_Comorbidity erstellen:
+DROP TABLE IF EXISTS d_Comorbidity;
 
 CREATE TABLE d_Comorbidity AS
 SELECT DISTINCT code AS ID, description AS Description
 FROM conditions
-WHERE code != '254837009'
-
-
+WHERE code != '254837009';
 
 -- Fülle F_BreastCancerQoL auf:
-
 INSERT INTO F_BreastCancerQoL (PatientId, Age_group_diagnosis_ID, Comorbidity_ID, Comorbidity_YesNo, Ethnicity, Gender, Cancertherapy_ID, Chemotherapy_YesNo, Targetedtherapy_YesNo, Medication_ID, Medication_YesNo, QoL_Value_first, QoL_Value_last)
 SELECT
   p.id AS PatientId,
@@ -222,5 +228,3 @@ DROP TABLE IF EXISTS imaging_studies;
 DROP TABLE IF EXISTS immunizations;
 DROP TABLE IF EXISTS patients;
 DROP TABLE IF EXISTS procedures;
-
-

@@ -48,13 +48,6 @@ JOIN observations o ON p.id = o.patient
 JOIN conditions c ON p.id = c.patient
 WHERE c.code = '254837009';
 
--- Temporäre Tabelle mit Primary Tumor ID erstellen (nur wenn Histologische Info vorhanden):
-DROP TABLE IF EXISTS temp_encounter_primary_tumor;
-
-CREATE TABLE temp_encounter_primary_tumor AS
-SELECT e.patient, pt.id AS primarytumor_ID from encounters e, d_PrimaryTumor pt
-WHERE e.id = pt.id;
-
 -- Temporäre Tabelle mit Comorbidities erstellen (ohne Brustkrebserkrankungen):
 DROP TABLE IF EXISTS temp_patients_comorbidity;
 
@@ -218,6 +211,12 @@ WHERE
 GROUP BY
   o.encounter;
 
+-- Temporäre Tabelle mit Primary Tumor ID erstellen (nur wenn Histologische Info vorhanden):
+DROP TABLE IF EXISTS temp_encounter_primary_tumor;
+
+CREATE TABLE temp_encounter_primary_tumor AS
+SELECT e.patient, pt.id AS primarytumor_ID from encounters e, d_PrimaryTumor pt
+WHERE e.id = pt.id;
 
 -- Fülle F_BreastCancerQoL auf:
 

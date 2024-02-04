@@ -13,6 +13,7 @@ Table F_BreastCancerQoL {
   Medication_YesNo Integer [not null]
   QoL_Value_first Integer [not null]
   QoL_Value_last Integer [not null]
+  
 }
 Table d_Patients {
   Id UUID [primary key]
@@ -35,21 +36,24 @@ Table d_Medications {
 Table d_Cancertherapy {
   ID Integer [primary key]
   Description String [not null]
-  ReasonCode String
-  ReasonDescription String
+  ChemoTherapy String
+  TargetedTherapy String
 
 }
 
 Table d_Agegroups {
   ID Integer [primary key]
   Agre_group String [not null]
+  Min_Age Integer  [not null]
+  Max_Age Integer [not null]
 }
 
 Table d_Primarytumor {
   ID Integer [primary key]
-  Tumortype String [not null]
   HER2_Status String
-  HR_Status String 
-  Stage integer 
-  Nodal_Status String 
+  HR_Status String
+  Stage Integer
+  Nodal_Status String
+  T_Status String
+  M_Status String]
 }

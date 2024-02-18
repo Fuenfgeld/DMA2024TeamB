@@ -10,10 +10,14 @@ Dieses GitHub-Repository enthält den Code und die Dokumentation für das Data M
 
 Das Projekt simuliert und erarbeitet alle Prozesse eines Datenmanagement-Projekts:
 
-1. Erstellen des Datenmanagementplans, der Projektoutline und Studienziele sowie Datenschutzfolgeabschätzung.
-2. Erstellung der Quelldatenbank mittels Rohdaten/Quelldaten.
-3. Überführen der Daten in ein Data Warehouse (ETL-Prozess).
-4. Erarbeitung eines statistischen Analyseplans sowie Analyse und Visualisierung der Daten gemäß der selbst gewählten Forschungsfrage.
+1. Erstellen des [Datenmanagementplan](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Datenmanagementplan) der
+[Projektoutline und Studienziele](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Projektoutline-und-Studienziele) sowie 
+[Datenschutzfolgeabschätzung](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Datenschutzfolgeabsch%C3%A4tzung)
+2. [Erstellung der Quelldatenbank](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Erstellung-Quelldatenbank) mittels Rohdaten/
+[Quelldaten](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Quelldaten)
+3. Überführen der Daten in ein Data Warehouse, [(ETL-Prozess)](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/ETL%E2%80%90Prozess)
+4. Erarbeitung eines [statistischen Analyse Plans](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Statistischer-Analyse-Plan) sowie Analyse und Visualisierung der Daten gemäss der selbst gewählten Forschungsfrage
+
 
 ## Forschungsfrage
 

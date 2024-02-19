@@ -1,6 +1,7 @@
 # DMA2024TeamB
 
-!(/Daten/PRECISE-BC.jpg)
+![PRECISE-BC](/Daten/PRECISE-BC.jpg)
+
 
 # PRECISE-BC: Probing QALY Changes in Breast Cancer Patients with and without Comorbidities
 

@@ -1,5 +1,7 @@
 # DMA2024TeamB
 
+!Daten/PRECISE-BC.jpg
+
 # PRECISE-BC: Probing QALY Changes in Breast Cancer Patients with and without Comorbidities
 
 **Ein Data Management Projekt im Rahmen des Online-Masters "Biomedizinische Informatik und Data Science" an der Hochschule Mannheim.**

@@ -12,6 +12,7 @@ Dieses GitHub-Repository enthält den Code und die Dokumentation für das Data M
 ## Projektübersicht
 
 Das Projekt simuliert und erarbeitet alle Prozesse eines Datenmanagement-Projekts:
+![Forschungsdatenmanagement@2x](https://github.com/Fuenfgeld/DMA2024TeamB/assets/157396937/5e2996f6-3209-4f0c-9016-ca53b7bfd1e2)
 
 1. Erstellen des [Datenmanagementplan](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Datenmanagementplan) der
 [Projektoutline und Studienziele](https://github.com/Fuenfgeld/DMA2024TeamB/wiki/Projektoutline-und-Studienziele) sowie 
